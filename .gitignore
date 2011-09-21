@@ -1,1 +1,3 @@
 .couchapprc
+.DS_Store
+*.pyc

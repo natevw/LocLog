@@ -1,6 +1,8 @@
 import sys
 from uuid import uuid4
 from collections import namedtuple, OrderedDict
+from datetime import datetime
+import logging
 
 from helpers import _transport
 
@@ -63,6 +65,18 @@ def augment(current, new):
     for key, val in new.items():
         current[key] = val
 
+def extract(fix):
+    loc = OrderedDict()
+    if 'date' in fix and 'time' in fix:
+        loc['time'] = datetime.strptime(fix['date']+fix['time'], "%d%m%y%H%M%S.%f").isoformat() + 'Z'
+    if 'lat' in fix and 'lat_ns' in fix:
+        loc['lat'] = (int(fix['lat'][:2]) + float(fix['lat'][2:]) / 60) * (-1 if fix['lat_ns'] == 'S' else 1)
+    if 'lon' in fix and 'lon_ew' in fix:
+        loc['lon'] = (int(fix['lon'][:3]) + float(fix['lon'][3:]) / 60) * (-1 if fix['lon_ew'] == 'W' else 1)
+    if 'geoid_alt' in fix:
+        loc['ele'] = float(fix['geoid_alt'])
+    return loc
+
 for file in files:
     line_number, fixes, fix = 0, [], OrderedDict()
     for line in open(file):
@@ -71,7 +85,7 @@ for file in files:
             s = Sentence(line)
         except AssertionError as e:
             if line.strip():
-                print "Skipping line %u. (%s)" % (line_number, e)
+                logging.warn("Skipping line %u. (%s)", line_number, e)
             continue
         
         if s.talker != 'GP':
@@ -81,12 +95,15 @@ for file in files:
         try:
             augment(fix, update)
         except AssertionError as e:
-            if 'time' not in str(e):
-                print "Unusual split at line %u. (%s)" % (line_number, e)
+            if 'time' not in str(e) or 'date' not in fix:   # TODO: fill in missing date with previous (handling time rollover)
+                logging.warn("Unusual split at line %u. (%s)", line_number, e)
             fixes.append(fix)
             fix = update
     if fix:
         fixes.append(fix)
+    
+    
+    
     #print '\n'.join("%(lat)s%(lat_ns)s, %(lon)s%(lon_ew)s" % fix for fix in fixes if 'lat' in fix)
     import json
-    print '\n'.join(map(json.dumps,fixes))
+    print '\n'.join(map(json.dumps,map(extract,fixes)))

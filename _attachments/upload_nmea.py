@@ -1,5 +1,6 @@
 import sys
 from uuid import uuid4
+from collections import namedtuple, OrderedDict
 
 from helpers import _transport
 
@@ -27,16 +28,15 @@ class Sentence(object):
     
     @staticmethod
     def _name_fields(type, raw_data):
-        from collections import namedtuple
         HEADERS = {
             'AAM': namedtuple("ArrivalAlarm", ['entered', 'passed', 'radius', 'radius_units', 'waypoint_id']),
             'ALM': namedtuple("AlmanacData", ['messages_total', 'message_number', 'satellite_prn', 'gps_week', 'sv_health', 'eccentricity', 'reference_time', 'inclination', 'ascension_rate', 'semimajor_root', 'arg_perigree', 'lon_ascension_node', 'mean_anomaly', 'f0_clock_param', 'f1_clock_param']),
             # ...
             'RMC': namedtuple("RecommendedMinimumCoords", ['time', 'status', 'lat', 'lat_ns', 'lon', 'lon_ew', 'speed', 'track', 'date', 'magvar', 'magvar_ew', 'faa_mode']),
             'VTG': namedtuple("VelocityTrackMadeGood", ['track_true', 'is_true', 'track_magnetic', 'is_magnetic', 'speed_knots', 'is_knots', 'speed_kph', 'is_kph', 'faa_mode']),
-            'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_view', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
+            'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_fix', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
             'GSA': namedtuple("SatellitesAvailable", ['manual_auto', 'fix_mode', 'sat01', 'sat02', 'sat03', 'sat04', 'sat05', 'sat06', 'sat07', 'sat08', 'sat09', 'sat10', 'sat11', 'sat12', 'pdop', 'hdop', 'vdop']),
-            'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN_id', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr'])
+            'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr'])
         }
         
         klass = HEADERS.get(type, None)
@@ -44,8 +44,11 @@ class Sentence(object):
             num_sats = (len(raw_data) - 3) / 4
             field_names = klass[1][:3]
             sat_template = klass[1][3:]
+            
+            msg = raw_data[1]
+            field_names[1] += msg
             for n in range(num_sats):
-                field_names.extend(f.replace('NN', "%02u" % (n+1)) for f in sat_template)
+                field_names.extend(f.replace('NN', "%02um%s" % (n+1, msg)) for f in sat_template)
             klass = namedtuple("%s%u" % (klass[0], num_sats), field_names)
         
         if klass and len(klass._fields) == len(raw_data) + 1:   # fixup pre-2.3 sentences lacking faa_mode
@@ -61,7 +64,7 @@ def augment(current, new):
         current[key] = val
 
 for file in files:
-    line_number, fixes, fix = 0, [], {}
+    line_number, fixes, fix = 0, [], OrderedDict()
     for line in open(file):
         line_number += 1
         try:
@@ -78,10 +81,12 @@ for file in files:
         try:
             augment(fix, update)
         except AssertionError as e:
-            #if 'time' not in str(e):
-            #    print e
+            if 'time' not in str(e):
+                print "Unusual split at line %u. (%s)" % (line_number, e)
             fixes.append(fix)
             fix = update
     if fix:
         fixes.append(fix)
-    print '\n'.join("%(lat)s%(lat_ns)s, %(lon)s%(lon_ew)s" % fix for fix in fixes if 'lat' in fix)
+    #print '\n'.join("%(lat)s%(lat_ns)s, %(lon)s%(lon_ew)s" % fix for fix in fixes if 'lat' in fix)
+    import json
+    print '\n'.join(map(json.dumps,fixes))

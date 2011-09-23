@@ -36,7 +36,7 @@ class Sentence(object):
             'VTG': namedtuple("VelocityTrackMadeGood", ['track_true', 'is_true', 'track_magnetic', 'is_magnetic', 'speed_knots', 'is_knots', 'speed_kph', 'is_kph', 'faa_mode']),
             'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_view', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
             'GSA': namedtuple("SatellitesAvailable", ['manual_auto', 'fix_mode', 'sat01', 'sat02', 'sat03', 'sat04', 'sat05', 'sat06', 'sat07', 'sat08', 'sat09', 'sat10', 'sat11', 'sat12', 'pdop', 'hdop', 'vdop']),
-            'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr'])
+            'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN_id', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr'])
         }
         
         klass = HEADERS.get(type, None)
@@ -53,12 +53,15 @@ class Sentence(object):
         
         return klass(*raw_data) if klass else tuple(raw_data)
 
-
-        
+def augment(current, new):
+    for key, val in new.items():
+        if current.get(key, val) != val:
+            raise AssertionError("New data for '%s' not compatible with current." % key)
+    for key, val in new.items():
+        current[key] = val
 
 for file in files:
-    
-    line_number = 0
+    line_number, fixes, fix = 0, [], {}
     for line in open(file):
         line_number += 1
         try:
@@ -71,6 +74,14 @@ for file in files:
         if s.talker != 'GP':
             continue
         
-        
-        print s.talker, s.type, s.data
-        
+        update = s.data._asdict()
+        try:
+            augment(fix, update)
+        except AssertionError as e:
+            #if 'time' not in str(e):
+            #    print e
+            fixes.append(fix)
+            fix = update
+    if fix:
+        fixes.append(fix)
+    print '\n'.join("%(lat)s%(lat_ns)s, %(lon)s%(lon_ew)s" % fix for fix in fixes if 'lat' in fix)

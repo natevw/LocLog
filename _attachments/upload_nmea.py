@@ -34,7 +34,7 @@ class Sentence(object):
             # ...
             'RMC': namedtuple("RecommendedMinimumCoords", ['time', 'status', 'lat', 'lat_ns', 'lon', 'lon_ew', 'speed', 'track', 'date', 'magvar', 'magvar_ew', 'faa_mode']),
             'VTG': namedtuple("VelocityTrackMadeGood", ['track_true', 'is_true', 'track_magnetic', 'is_magnetic', 'speed_knots', 'is_knots', 'speed_kph', 'is_kph', 'faa_mode']),
-            'GGA': namedtuple("GeoidAndAntenna", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_view', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
+            'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_view', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
             'GSA': namedtuple("SatellitesAvailable", ['manual_auto', 'fix_mode', 'sat01', 'sat02', 'sat03', 'sat04', 'sat05', 'sat06', 'sat07', 'sat08', 'sat09', 'sat10', 'sat11', 'sat12', 'pdop', 'hdop', 'vdop']),
             'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr'])
         }
@@ -45,10 +45,10 @@ class Sentence(object):
             field_names = klass[1][:3]
             sat_template = klass[1][3:]
             for n in range(num_sats):
-                field_names.extend(f.replace('NN', "%02u" % n) for f in sat_template)
-            klass = namedtuple(klass[0], field_names)
+                field_names.extend(f.replace('NN', "%02u" % (n+1)) for f in sat_template)
+            klass = namedtuple("%s%u" % (klass[0], num_sats), field_names)
         
-        if klass and len(klass._fields) == len(raw_data) + 1:
+        if klass and len(klass._fields) == len(raw_data) + 1:   # fixup pre-2.3 sentences lacking faa_mode
             raw_data.append('')
         
         return klass(*raw_data) if klass else tuple(raw_data)

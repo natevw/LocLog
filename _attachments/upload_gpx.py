@@ -1,23 +1,8 @@
 import sys
-import json
 from uuid import uuid4
 from xml.etree import ElementTree as ET
 
-
-def _transport(method, path, data=None):
-    import json
-    from httplib import HTTPConnection
-    
-    conn = HTTPConnection("localhost", 5984)
-    
-    body = None
-    if data is not None:
-        body = json.dumps(data)
-    conn.request(method, path, body)
-    
-    resp = conn.getresponse()
-    return json.loads(resp.read())
-
+from helpers import _transport
 
 files = sys.argv[1:]
 

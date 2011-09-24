@@ -37,7 +37,10 @@ class Sentence(object):
         fields = line.split(',')
         self.talker = fields[0][:2]
         self.type = fields[0][2:]
-        self.data = self._name_fields(self.type, fields[1:])
+        try:
+            self.data = self._name_fields(self.type, fields[1:])
+        except:
+            raise AssertionError("Could not parse fields")
     
     @staticmethod
     def _name_fields(type, raw_data):

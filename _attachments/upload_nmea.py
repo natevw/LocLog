@@ -1,7 +1,7 @@
 import sys
 from uuid import uuid4
 from collections import namedtuple, OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from helpers import _transport
@@ -78,7 +78,7 @@ def extract(fix):
     return loc
 
 for file in files:
-    line_number, fixes, fix = 0, [], OrderedDict()
+    line_number, fixes, state, fix = 0, [], {}, OrderedDict()
     for line in open(file):
         line_number += 1
         try:
@@ -92,11 +92,18 @@ for file in files:
             continue
         
         update = s.data._asdict()
+        if 'date' in update: state['date'] = update['date']
+        if 'time' in update: state['time'] = update['time']
         try:
             augment(fix, update)
         except AssertionError as e:
-            if 'time' not in str(e) or 'date' not in fix:   # TODO: fill in missing date with previous (handling time rollover)
+            if 'time' not in str(e):
                 logging.warn("Unusual split at line %u. (%s)", line_number, e)
+            
+            if 'time' not in fix and 'time' in state:
+                fix['time'] = state['time']
+            if 'date' not in fix and 'date' in state:
+                fix['date'] = state['date'] if fix['time'] > state['time'] else (datetime.strptime(state['date'], "%d%m%y") + timedelta(days=1)).strftime("%d%m%y")
             fixes.append(fix)
             fix = update
     if fix:

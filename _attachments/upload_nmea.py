@@ -9,6 +9,17 @@ from helpers import _transport
 files = sys.argv[1:]
 
 
+FIELD_HEADERS = {
+    'AAM': namedtuple("ArrivalAlarm", ['entered', 'passed', 'radius', 'radius_units', 'waypoint_id']),
+    'ALM': namedtuple("AlmanacData", ['messages_total', 'message_number', 'satellite_prn', 'gps_week', 'sv_health', 'eccentricity', 'reference_time', 'inclination', 'ascension_rate', 'semimajor_root', 'arg_perigree', 'lon_ascension_node', 'mean_anomaly', 'f0_clock_param', 'f1_clock_param']),
+    # ...
+    'RMC': namedtuple("RecommendedMinimumCoords", ['time', 'status', 'lat', 'lat_ns', 'lon', 'lon_ew', 'speed', 'track', 'date', 'magvar', 'magvar_ew', 'faa_mode']),
+    'VTG': namedtuple("VelocityTrackMadeGood", ['track_true', 'is_true', 'track_magnetic', 'is_magnetic', 'speed_knots', 'is_knots', 'speed_kph', 'is_kph', 'faa_mode']),
+    'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_fix', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
+    'GSA': namedtuple("SatellitesAvailable", ['manual_auto', 'fix_mode', 'sat01', 'sat02', 'sat03', 'sat04', 'sat05', 'sat06', 'sat07', 'sat08', 'sat09', 'sat10', 'sat11', 'sat12', 'pdop', 'hdop', 'vdop']),
+    'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr']),
+    'WPL': namedtuple("WaypointLocation", ['wp_lat', 'wp_lat_ns', 'wp_lon', 'wp_lon_ew', 'waypoint_name']),
+}
 
 class Sentence(object):
     def __init__(self, line):
@@ -30,19 +41,9 @@ class Sentence(object):
     
     @staticmethod
     def _name_fields(type, raw_data):
-        HEADERS = {
-            'AAM': namedtuple("ArrivalAlarm", ['entered', 'passed', 'radius', 'radius_units', 'waypoint_id']),
-            'ALM': namedtuple("AlmanacData", ['messages_total', 'message_number', 'satellite_prn', 'gps_week', 'sv_health', 'eccentricity', 'reference_time', 'inclination', 'ascension_rate', 'semimajor_root', 'arg_perigree', 'lon_ascension_node', 'mean_anomaly', 'f0_clock_param', 'f1_clock_param']),
-            # ...
-            'RMC': namedtuple("RecommendedMinimumCoords", ['time', 'status', 'lat', 'lat_ns', 'lon', 'lon_ew', 'speed', 'track', 'date', 'magvar', 'magvar_ew', 'faa_mode']),
-            'VTG': namedtuple("VelocityTrackMadeGood", ['track_true', 'is_true', 'track_magnetic', 'is_magnetic', 'speed_knots', 'is_knots', 'speed_kph', 'is_kph', 'faa_mode']),
-            'GGA': namedtuple("GeoidAltitude", ['time', 'lat', 'lat_ns', 'lon', 'lon_ew', 'fix_quality', 'sats_in_fix', 'hdop', 'geoid_alt', 'is_meters', 'geoidal_sep', 'in_meters', 'dgps_age', 'dgps_id']),
-            'GSA': namedtuple("SatellitesAvailable", ['manual_auto', 'fix_mode', 'sat01', 'sat02', 'sat03', 'sat04', 'sat05', 'sat06', 'sat07', 'sat08', 'sat09', 'sat10', 'sat11', 'sat12', 'pdop', 'hdop', 'vdop']),
-            'GSV': ("SatellitesInView", ['messages_total', 'message_number', 'sats_in_view', 'satNN', 'satNN_elevation', 'satNN_azimuth', 'satNN_snr']),
-            'WPL': namedtuple("WaypointLocation", ['wp_lat', 'wp_lat_ns', 'wp_lon', 'wp_lon_ew', 'waypoint_name']),
-        }
+        if type in ('VTG', 'GSA', 'GSV'): return tuple()    # skip frequent types we don't actually use
         
-        klass = HEADERS.get(type, None)
+        klass = FIELD_HEADERS.get(type, None)
         if type == 'GSV':
             num_sats = (len(raw_data) - 3) / 4
             field_names = klass[1][:3]
@@ -89,8 +90,9 @@ for file in files:
             if line.strip():
                 logging.warn("Skipping line %u. (%s)", line_number, e)
             continue
-        
         if s.talker != 'GP':
+            continue
+        if not hasattr(s.data, '_asdict'):
             continue
         
         update = s.data._asdict()
@@ -112,7 +114,7 @@ for file in files:
         fixes.append(fix)
     
     segment, prev_time = [], None
-    for loc in map(extract, fixes):
+    for loc in (extract(fix) for fix in fixes):
         if 'time' not in loc: continue
         if prev_time and loc['time'] > prev_time + timedelta(seconds=15):
             #_transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})

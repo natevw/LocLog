@@ -1,0 +1,16 @@
+<!doctype html>
+<html><head>
+    <meta charset="utf-8">
+    <title>DUPE NUKEM 4D</title>
+    <script src="../../../Others'/d3/d3.js"></script>
+    <script src="../../../&yet/fermata/fermata.js"></script>
+</head><body>
+    <script>
+        var pointDB = fermata.json("http://localhost:5984/loctest"),
+            pointsIndexed = pointDB(["_design/loclog", "_view"]);
+        pointsIndexed('by_utc', {group:true, limit:1000}).get(function (e,d) {
+            var dupes = d.rows.filter(function (r) { return r.value > 1; });
+            console.log(JSON.stringify(dupes,null,4));  // fun, but now we need to re-query each key...
+        });
+    </script>
+</body></html>

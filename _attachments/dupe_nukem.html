@@ -58,8 +58,8 @@
                                 });
                         
                         d3.select("#diff").selectAll('tr:not(.header)').data(joinedRows)
-                            .enter().append('tr').selectAll('td').data(function (d) { return [d[0]].concat(d); })
-                                .enter().append('td').html(function (d, i ) { return (i) ? [d.lat, d.lon].join('<br/>') : d.time; });
+                            .enter().append('tr').selectAll('td').data(function (d) { return [d.filter(Boolean)[0]].concat(d); })
+                                .enter().append('td').html(function (d, i) { if (!d) { return '-'; } return (i) ? [d.lat, d.lon].join('<br/>') : d.time; });
                     });
                     break;
                 }

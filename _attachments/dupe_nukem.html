@@ -6,11 +6,49 @@
     <script src="../../../&yet/fermata/fermata.js"></script>
 </head><body>
     <script>
+        var BATCH_SIZE = 100, startkey = null;
         var pointDB = fermata.json("http://localhost:5984/loctest"),
             pointsIndexed = pointDB(["_design/loclog", "_view"]);
-        pointsIndexed('by_utc', {group:true, limit:1000}).get(function (e,d) {
-            var dupes = d.rows.filter(function (r) { return r.value > 1; });
-            console.log(JSON.stringify(dupes,null,4));  // fun, but now we need to re-query each key...
+        
+        pointsIndexed('by_utc', {reduce:false, limit:BATCH_SIZE, $startkey:startkey}).get(function (e,d) {
+            var pts = d.rows;
+            
+            var conflicted, nextStartkey;
+            for (var i = 1, len = pts.length; i < len; i += 1) {
+                var pt0 = pts[i-1], pt1 = pts[i];
+                if (pt0.key.join() == pt1.key.join()) {
+                    conflicted || (conflicted = {});
+                    conflicted[pt0.id] = true;
+                    conflicted[pt1.id] = true;
+                } else if (conflicted) {
+                    pointDB('_all_docs', {include_docs:true}).post({keys:Object.keys(conflicted)}, function (e,d) {
+                        var joinedRows = [];
+                        d.rows.forEach(function (r) { r.i = 0; });
+                        while (true) {
+                            function rowTime(r) { var pt = r.doc.points[r.i]; return pt && pt.time; }
+                            
+                            var time = d.rows.filter(rowTime).map(rowTime).sort()[0],
+                                row = d.rows.map(function (r) {
+                                    if (rowTime(r) == time) {
+                                        return r.doc.points[r.i++];
+                                    }
+                                });
+                            if (!row.some(Boolean)) break;
+                            joinedRows.push(row);
+                        }
+                        console.log(joinedRows);
+                        
+                        d3.select(document.body).append('table').attr('id', "diff").attr('border', '')
+                            .append('tr').classed('header', true).selectAll('th').data([{id:'time'}].concat(d.rows).map(function (r) { return r.id; }))
+                                .enter().append('th').text(function (d) { return d; });
+                        
+                        d3.select("#diff").selectAll('tr:not(.header)').data(joinedRows)
+                            .enter().append('tr').selectAll('td').data(function (d) { return [d[0]].concat(d); })
+                                .enter().append('td').html(function (d, i ) { return (i) ? [d.lat, d.lon].join('<br/>') : d.time; });
+                    });
+                    break;
+                }
+            }
         });
     </script>
 </body></html>

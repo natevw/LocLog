@@ -83,7 +83,7 @@ def extract(fix):
     return loc
 
 for file in files:
-    print "Reading %s" % file
+    logging.info("Reading %s", file)
     fixes, line_number, state, fix = [], 0, {}, OrderedDict()
     for line in open(file):
         line_number += 1

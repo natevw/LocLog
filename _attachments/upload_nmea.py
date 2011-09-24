@@ -68,7 +68,7 @@ def augment(current, new):
 def extract(fix):
     loc = OrderedDict()
     if 'date' in fix and 'time' in fix:
-        loc['time'] = datetime.strptime(fix['date']+fix['time'], "%d%m%y%H%M%S.%f").isoformat() + 'Z'
+        loc['time'] = datetime.strptime(fix['date']+fix['time'], "%d%m%y%H%M%S.%f")
     if 'lat' in fix and 'lat_ns' in fix:
         loc['lat'] = (int(fix['lat'][:2]) + float(fix['lat'][2:]) / 60) * (-1 if fix['lat_ns'] == 'S' else 1)
     if 'lon' in fix and 'lon_ew' in fix:
@@ -78,7 +78,8 @@ def extract(fix):
     return loc
 
 for file in files:
-    line_number, fixes, state, fix = 0, [], {}, OrderedDict()
+    print "Reading %s" % file
+    fixes, line_number, state, fix = [], 0, {}, OrderedDict()
     for line in open(file):
         line_number += 1
         try:
@@ -109,8 +110,13 @@ for file in files:
     if fix:
         fixes.append(fix)
     
-    
-    
-    #print '\n'.join("%(lat)s%(lat_ns)s, %(lon)s%(lon_ew)s" % fix for fix in fixes if 'lat' in fix)
-    import json
-    print '\n'.join(map(json.dumps,map(extract,fixes)))
+    segment, prev_time = [], None
+    for loc in map(extract, fixes):
+        if 'time' not in loc: continue
+        if prev_time and loc['time'] > prev_time + timedelta(seconds=15):
+            #_transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})
+            print "Segment with %u points" % len(segment)
+            segment = []
+        segment.append(loc)
+        prev_time = loc['time']
+        loc['time'] = loc['time'].isoformat() + 'Z'

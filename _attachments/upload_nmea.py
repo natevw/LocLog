@@ -99,8 +99,6 @@ for file in files:
             continue
         
         update = s.data._asdict()
-        if 'date' in update: state['date'] = update['date']
-        if 'time' in update: state['time'] = update['time']
         try:
             augment(fix, update)
         except AssertionError as e:
@@ -110,9 +108,11 @@ for file in files:
             if 'time' not in fix and 'time' in state:
                 fix['time'] = state['time']
             if 'date' not in fix and 'date' in state:
-                fix['date'] = state['date'] if fix['time'] > state['time'] else (datetime.strptime(state['date'], "%d%m%y") + timedelta(days=1)).strftime("%d%m%y")
+                fix['date'] = state['date'] if fix['time'] >= state['time'] else (datetime.strptime(state['date'], "%d%m%y") + timedelta(days=1)).strftime("%d%m%y")
             fixes.append(fix)
             fix = update
+        if 'date' in update: state['date'] = update['date']
+        if 'time' in update: state['time'] = update['time']
     if fix:
         fixes.append(fix)
     
@@ -125,3 +125,5 @@ for file in files:
         segment.append(loc)
         prev_time = loc['time']
         loc['time'] = loc['time'].isoformat() + 'Z'
+    if segment:
+        _transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})

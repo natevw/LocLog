@@ -117,8 +117,7 @@ for file in files:
     for loc in (extract(fix) for fix in fixes):
         if 'time' not in loc: continue
         if prev_time and loc['time'] > prev_time + timedelta(seconds=15):
-            #_transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})
-            print "Segment with %u points" % len(segment)
+            _transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})
             segment = []
         segment.append(loc)
         prev_time = loc['time']

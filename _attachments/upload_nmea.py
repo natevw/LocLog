@@ -1,10 +1,9 @@
 import sys
-from uuid import uuid4
 from collections import namedtuple, OrderedDict
 from datetime import datetime, timedelta
 import logging
 
-from helpers import _transport
+from helpers import upload_points
 
 files = sys.argv[1:]
 
@@ -116,14 +115,15 @@ for file in files:
     if fix:
         fixes.append(fix)
     
-    segment, prev_time = [], None
+    segment, prev_time, seg_number = [], None, 0
     for loc in (extract(fix) for fix in fixes):
         if 'time' not in loc: continue
         if prev_time and loc['time'] > prev_time + timedelta(seconds=15):
-            _transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})
+            upload_points(file, seg_number, segment)
             segment = []
+            seg_number += 1
         segment.append(loc)
         prev_time = loc['time']
         loc['time'] = loc['time'].isoformat() + 'Z'
     if segment:
-        _transport('PUT', "/loctest/loc_seg-%s" % uuid4().hex, {'com.stemstorage.loclog.track': True, 'points': segment})
+        upload_points(file, seg_number, segment)

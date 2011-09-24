@@ -43,7 +43,10 @@
                         
                         d3.select(document.body).append('span').attr('id', "skip").text("Leave this dupe").on('click', function (d, i) {
                             d3.select(document.body).html(null);
-                            nextDupe(pt1.key);
+                            
+                            var lastRow = joinedRows[joinedRows.length - 1].filter(Boolean)[0],
+                                lastKey = lastRow.time.split(/\D/).slice(0,-1).map(Number)
+                            nextDupe(lastKey);
                         });
                         
                         d3.select(document.body).append('table').attr('id', "diff").attr('border', '')

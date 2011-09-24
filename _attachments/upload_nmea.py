@@ -23,11 +23,11 @@ FIELD_HEADERS = {
 
 class Sentence(object):
     def __init__(self, line):
-        if not line[0] == '$':
+        if not line[0:1] == '$':
             raise AssertionError("Sentence must start with $")
         line = line.strip()[1:]
         
-        if line[-3] == '*':
+        if line[-3:-2] == '*':
             checksum = int(line[-2:], 16)
             line = line[:-3]
             linesum = reduce(lambda a,b: a^ord(b), line, 0)

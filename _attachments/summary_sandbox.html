@@ -1,0 +1,90 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Geodata summary sandbox</title>
+    <script src="d3.min.js"></script>
+    <script src="../../../Others'/d3/d3.js"></script>
+    <script src="../../../Others'/d3/d3.geo.js"></script>
+    <script src="fermata.min.js"></script>
+    <script src="../../../&yet/fermata/fermata.js"></script>
+    <script src="polymaps.min.js"></script>
+    
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0">
+    <style>
+        #map { position: absolute; top: 75px; bottom: 10%; left: 0; right: 0; margin: auto; width: 90%; }
+        #timeline {
+            position: absolute; border: 1px dotted gray;
+            top: 90%; height: 8%;
+            left: 0; right: 0; margin-left: auto; margin-right: auto; width: 90%;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <div id="timeline"></div>
+    
+    
+    <script>
+        var po = org.polymaps,
+            map = po.map().container(d3.select('#map').append("svg:svg").node());
+        map.add(po.interact());
+        map.add(po.image()
+            .url(po.url("http://{S}tile.cloudmade.com"
+            + "/51664f123b50414da85e963f92c721f0"
+            + "/998/256/{Z}/{X}/{Y}.png")
+            .hosts(["a.", "b.", "c.", ""])));
+        
+        
+        function dateFromArrayUTC(arr) {
+            var d = new Date();
+            d.setUTCFullYear(arr[0] || 0);
+            d.setUTCMonth(arr[1] - 1 || 0);
+            d.setUTCDate(arr[2] || 1);
+            d.setUTCHours(arr[3] || 0);
+            d.setUTCMinutes(arr[4] || 0);
+            d.setUTCSeconds(Math.floor(arr[5]) || 0);
+            d.setUTCMilliseconds(1000 * (arr[5] - Math.floor(arr[5])) || 0);
+            return d;
+        }
+        
+        var coordDB = fermata.json("http://localhost:5984/loctest"),
+            coordsIndexed = coordDB(["_design/loclog", "_view"]);
+        coordsIndexed('by_utc', {group_level:3}).get(function (e,d) {
+            console.log(d.rows.length);
+            var coords = d.rows.map(function (r) {
+                    return [r.value.lon, r.value.lat, r.value.ele, dateFromArrayUTC(r.key)];
+                }).sort(function (a,b) { return d3.ascending(a[3], b[3]); }),
+                coordFeatures = coords.map(function (coord) {return {type:"Feature", properties:null, geometry:{type:"Point", coordinates:coord}}; }),
+                coordTimes = coords.map(function (c) { return c[3]; });
+            
+            function locationForTime(t, window) {
+                var i = d3.bisectLeft(coordTimes, t);
+                i = Math.min(i, coordTimes.length - 1);
+                return coords[i].map(function (c,i) { return (i === 3) ? t : c; });
+            }
+            
+            var trackLayer = po.geoJson().features(coordFeatures)
+                .on('load', po.stylist().attr('fill', "none").attr('stroke', "blue").attr('stroke-miterlimit', 1).attr('r', 2.5)),
+                b = d3.geo.bounds({type:"FeatureCollection", features:coordFeatures}).map(function (c) { return {lon:c[0], lat:c[1]}; });
+            map.add(trackLayer).extent(b).zoomBy(-0.25);
+            
+            var locationLayer = po.geoJson().on('load', po.stylist().attr('fill', "yellow").attr('stroke', "orange").attr('r', 5)),
+                timeline = d3.select('#timeline').append('svg:svg'),
+                trackGraph = timeline.selectAll('.track').data([coords]),
+                timeScaleX = d3.scale.linear().domain([coordTimes[0], coordTimes[coordTimes.length - 1]]).range([0, timeline.property('clientWidth')]),
+                timeScaleY = d3.scale.linear().domain([0, 2500]).range([timeline.property('clientHeight'), 0]),
+                trackLine = d3.svg.line().x(function (coord) { return timeScaleX(coord[3]); }).y(function (coord) { return timeScaleY(coord[2]); });
+            trackGraph.enter().append('svg:path').classed('track', true);
+            trackGraph.attr('d', function (d) { return trackLine(d); }).attr('fill', "none").attr('stroke', "blue");
+            timeline.on("mousemove", function () {
+                var time = timeScaleX.invert(d3.svg.mouse(this)[0]),
+                    coord = locationForTime(time);
+                locationLayer.features([{type: "Feature", properties: null, geometry: {type:"Point", coordinates:coord}}]);
+            }).on("mouseout", function () { locationLayer.features([]); });
+            map.add(locationLayer);
+        });
+        
+    </script>
+</body>
+</html>

@@ -50,18 +50,18 @@
             }
             
             var trackLayer = po.geoJson().features(coordFeatures)
-                .on('load', po.stylist().attr('fill', "none").attr('stroke', "blue").attr('stroke-miterlimit', 1).attr('r', 2.5)),
+                .on('load', po.stylist().attr('fill', "none").attr('stroke', "blue").attr('stroke-miterlimit', 1).attr('r', 1)),
                 b = d3.geo.bounds({type:"FeatureCollection", features:coordFeatures}).map(function (c) { return {lon:c[0], lat:c[1]}; });
             map.add(trackLayer).extent(b).zoomBy(-0.25);
             
-            var locationLayer = po.geoJson().on('load', po.stylist().attr('fill', "yellow").attr('stroke', "orange").attr('r', 5)),
+            var locationLayer = po.geoJson().on('load', po.stylist().attr('fill', "rgba(255,255,0,0.75)").attr('stroke', "orange").attr('r', 5)),
                 timeline = d3.select('#timeline').append('svg:svg'),
-                trackGraph = timeline.selectAll('.track').data([coords]),
+                trackGraph = timeline.selectAll('.track').data(coords),
                 timeScaleX = d3.scale.linear().domain([coordTimes[0], coordTimes[coordTimes.length - 1]]).range([0, timeline.property('clientWidth')]),
                 timeScaleY = d3.scale.linear().domain([0, 2500]).range([timeline.property('clientHeight'), 0]),
                 trackLine = d3.svg.line().x(function (coord) { return timeScaleX(coord[3]); }).y(function (coord) { return timeScaleY(coord[2]); });
-            trackGraph.enter().append('svg:path').classed('track', true);
-            trackGraph.attr('d', function (d) { return trackLine(d); }).attr('fill', "none").attr('stroke', "blue");
+            trackGraph.enter().append('svg:circle').attr('r', 0.5).attr('fill', "none").attr('stroke', "blue");
+            trackGraph.attr('cx', function (coord) { return timeScaleX(coord[3]); }).attr('cy', function (coord) { return timeScaleY(coord[2]); })
             timeline.on("mousemove", function () {
                 var time = timeScaleX.invert(d3.svg.mouse(this)[0]),
                     coord = locationForTime(time);

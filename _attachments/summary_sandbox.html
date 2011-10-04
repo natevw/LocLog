@@ -33,25 +33,13 @@
             + "/998/256/{Z}/{X}/{Y}.png")
             .hosts(["a.", "b.", "c.", ""])));
         
-        function dateFromArrayUTC(arr) {
-            var d = new Date();
-            d.setUTCFullYear(arr[0] || 0);
-            d.setUTCMonth(arr[1] - 1 || 0);
-            d.setUTCDate(arr[2] || 1);
-            d.setUTCHours(arr[3] || 0);
-            d.setUTCMinutes(arr[4] || 0);
-            d.setUTCSeconds(Math.floor(arr[5]) || 0);
-            d.setUTCMilliseconds(1000 * (arr[5] - Math.floor(arr[5])) || 0);
-            return d;
-        }
-        
         var coordDB = fermata.json("http://localhost:5984/loctest"),
             coordsIndexed = coordDB(["_design/loclog", "_view"]);
-        coordsIndexed('by_utc', {group_level:2, stale:'ok'}).get(function (e,d) {
+        coordsIndexed('by_utc', {group_level:3, stale:'ok'}).get(function (e,d) {
             console.log(d.rows.length);
-            var coordObjects = [].concat.apply([], d.rows.map(function (r) { var a = r.value; a.forEach(function (c) { c.time = dateFromArrayUTC(r.key); }); return a; })),
+            var coordObjects = [].concat.apply([], d.rows.map(function (r) { return r.value; })),
                 coords = coordObjects.map(function (c) {
-                    return [c.lon, c.lat, c.ele || 0, c.time.getTime()];
+                    return [c.lon, c.lat, c.ele || 0, Date.parse(c.time)];
                 }).sort(function (a,b) { return d3.ascending(a[3], b[3]); }),
                 coordFeatures = coords.map(function (coord) {return {type:"Feature", properties:null, geometry:{type:"Point", coordinates:coord}}; }),
                 coordTimes = coords.map(function (c) { return c[3]; });

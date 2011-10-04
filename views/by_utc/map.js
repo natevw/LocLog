@@ -5,7 +5,7 @@ function (doc) {
     
     if (doc['com.stemstorage.loclog.track']) {
         doc.points.forEach(function (pt) {
-            emit(dt.toUTCComponents(dt.newDate(pt.time)), {lat:pt.lat, lon:pt.lon, ele:pt.ele});
+            emit(dt.toUTCComponents(dt.newDate(pt.time)), {time:pt.time, lat:pt.lat, lon:pt.lon, ele:pt.ele});
         });
     }
 }

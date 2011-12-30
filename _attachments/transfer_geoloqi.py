@@ -1,9 +1,8 @@
-ACCESS_TOKEN = ""   # get from https://developers.geoloqi.com/getting-started
-DATABASE = "http://localhost:5984/loctest"
-LOQITYPE = 'com.stemstorage.loclog.geoloqi'
+from settings import DATABASE, GEOLOQI_ACCESS_TOKEN as ACCESS_TOKEN, GEOLOQI_TYPE as LOQITYPE
 
 from helpers import logging
 import json
+
 
 def _transport(method, url, data=None):
     import json

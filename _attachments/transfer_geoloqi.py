@@ -1,9 +1,8 @@
 ACCESS_TOKEN = ""       # get from https://developers.geoloqi.com/getting-started when logged in
 FILE = "/Users/natevw/Desktop/geoloqi_dump.json"
+LOQITYPE = 'com.stemstorage.loclog.geoloqi'
 
-import logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
-
+from helpers import logging
 import json
 
 def _transport(method, url, data=None):
@@ -41,6 +40,12 @@ while 1:
     points.extend(data['points'])
     start_date = data['points'][-1]['date']
     logging.info("Loaded points up to %s", start_date)
+
+from itertools import groupby
+points.sort(key=lambda p: p['date'])
+for k, g in groupby(points, lambda p: p['date'].split('T')[0]):
+    id, doc = "geoloqi-%s" %k.replace('-',''), {LOQITYPE:True, 'data':list(g)}
+    _transport('PUT', "http://localhost:5984/loctest/%s" % id, doc)
 
 fp = open(FILE, 'wb')
 json.dump(points, fp, indent=4)

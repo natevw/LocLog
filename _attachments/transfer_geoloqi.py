@@ -34,15 +34,16 @@ else:
     start_date = '2010-04-01T00:00:00Z'
 
 points = []
+fetch_date = start_date
 while 1:
-    url = "https://api.geoloqi.com/1/location/history?after=%s&sort=asc&ignore_gaps=1&count=1000&oauth_token=%s" % (start_date.replace("+", "%2B"), ACCESS_TOKEN)
+    url = "https://api.geoloqi.com/1/location/history?after=%s&sort=asc&ignore_gaps=1&count=1000&oauth_token=%s" % (fetch_date.replace("+", "%2B"), ACCESS_TOKEN)
     data = _transport('GET', url)
     if not data['points']:
         logging.info("No more points available.")
         break
     points.extend(data['points'])
-    start_date = data['points'][-1]['date']
-    logging.info("Loaded points up to %s.", start_date)
+    fetch_date = data['points'][-1]['date']
+    logging.info("Loaded points up to %s.", fetch_date)
 
 from itertools import groupby
 points.sort(key=lambda p: p['date'])

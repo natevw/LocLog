@@ -19,6 +19,9 @@ def _transport(method, url, data=None):
     if path.endswith('?'): path = path[:-1]
     conn.request(method, path, body)
     resp = conn.getresponse()
+    if str(resp.status)[0] != '2':
+        logging.error("%s to %s returned %s", method, url, resp.status)
+        raise AssertionError("Bad server response status")
     return json.loads(resp.read())
 
 

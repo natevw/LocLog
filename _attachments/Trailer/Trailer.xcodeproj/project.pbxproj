@@ -16,6 +16,7 @@
 		3E9658AA1537E26D002818DB /* TLViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E9658A91537E26D002818DB /* TLViewController.m */; };
 		3E9658AD1537E26D002818DB /* TLViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3E9658AB1537E26D002818DB /* TLViewController.xib */; };
 		3E9658B91537EC3C002818DB /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E9658B81537EC3C002818DB /* MapKit.framework */; };
+		3ED81F57153E7F5E0058DA2F /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3ED81F56153E7F5E0058DA2F /* CoreLocation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,8 @@
 		3E9658A91537E26D002818DB /* TLViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TLViewController.m; sourceTree = "<group>"; };
 		3E9658AC1537E26D002818DB /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/TLViewController.xib; sourceTree = "<group>"; };
 		3E9658B81537EC3C002818DB /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
+		3EC20E5F153D282500879718 /* Track-2012-04-14 19 04 53.gpx */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = "Track-2012-04-14 19 04 53.gpx"; path = "../../../../../Desktop/ballooning/Track-2012-04-14 19 04 53.gpx"; sourceTree = "<group>"; };
+		3ED81F56153E7F5E0058DA2F /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -40,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3ED81F57153E7F5E0058DA2F /* CoreLocation.framework in Frameworks */,
 				3E9658971537E26D002818DB /* UIKit.framework in Frameworks */,
 				3E9658991537E26D002818DB /* Foundation.framework in Frameworks */,
 				3E96589B1537E26D002818DB /* CoreGraphics.framework in Frameworks */,
@@ -53,6 +57,7 @@
 		3E9658871537E26C002818DB = {
 			isa = PBXGroup;
 			children = (
+				3EC20E5F153D282500879718 /* Track-2012-04-14 19 04 53.gpx */,
 				3E96589C1537E26D002818DB /* Trailer */,
 				3E9658951537E26D002818DB /* Frameworks */,
 				3E9658931537E26D002818DB /* Products */,
@@ -70,6 +75,7 @@
 		3E9658951537E26D002818DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3ED81F56153E7F5E0058DA2F /* CoreLocation.framework */,
 				3E9658B81537EC3C002818DB /* MapKit.framework */,
 				3E9658961537E26D002818DB /* UIKit.framework */,
 				3E9658981537E26D002818DB /* Foundation.framework */,
@@ -281,6 +287,7 @@
 				3E9658B21537E26D002818DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

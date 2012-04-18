@@ -14,6 +14,7 @@
 
 @synthesize window = _window;
 @synthesize viewController = _viewController;
+@synthesize locManager = _locManager;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -22,8 +23,25 @@
     self.viewController = [[TLViewController alloc] initWithNibName:@"TLViewController" bundle:nil];
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
+    
+    self.locManager = [CLLocationManager new];
+    self.locManager.delegate = self;
+    self.locManager.desiredAccuracy = kCLLocationAccuracyBest;
+    [self.locManager startUpdatingLocation];
+    
     return YES;
 }
+
+- (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
+{
+    NSLog(@"Error: %@", error);
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation
+{
+    NSLog(@"Update: %@", newLocation);
+}
+
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {

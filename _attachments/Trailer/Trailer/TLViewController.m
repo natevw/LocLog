@@ -8,6 +8,8 @@
 
 #import "TLViewController.h"
 
+#import "TLAppDelegate.h"
+
 @implementation TLViewController
 
 - (void)didReceiveMemoryWarning
@@ -56,5 +58,27 @@
     // Return YES for supported orientations
     return (interfaceOrientation != UIInterfaceOrientationPortraitUpsideDown);
 }
+
+- (CLLocationManager*)locationManager {
+    TLAppDelegate *appDelegate = (TLAppDelegate *)[UIApplication sharedApplication].delegate;
+    return appDelegate.locManager;
+}
+
+// TODO: these settings need to be persisted, restored and properly applied on app load
+
+- (IBAction)changeLogging:(UISwitch *)loggingSwitch {
+    if (loggingSwitch.isOn) [[self locationManager] startUpdatingLocation];
+    else [[self locationManager] stopUpdatingLocation];
+}
+
+- (IBAction)changeSending:(id)sender {}
+
+- (IBAction)changeAccuracy:(UISegmentedControl *)accuracyChooser {
+    CLLocationAccuracy options[] = {kCLLocationAccuracyThreeKilometers, kCLLocationAccuracyHundredMeters, kCLLocationAccuracyNearestTenMeters, kCLLocationAccuracyBest};
+    [self locationManager].desiredAccuracy = options[accuracyChooser.selectedSegmentIndex];
+    NSLog(@"Accuracy now: %f", [self locationManager].desiredAccuracy);
+}
+
+
 
 @end

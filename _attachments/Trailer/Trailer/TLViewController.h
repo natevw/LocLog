@@ -10,4 +10,8 @@
 
 @interface TLViewController : UIViewController
 
+- (IBAction)changeLogging:(id)sender;
+- (IBAction)changeSending:(id)sender;
+- (IBAction)changeAccuracy:(id)sender;
+
 @end

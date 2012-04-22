@@ -10,8 +10,14 @@
 
 #import <CoreLocation/CoreLocation.h>
 
-@interface TLTrailer : NSObject <CLLocationManagerDelegate>
+typedef NSUInteger TLTrailerSequence;
+
+@interface TLTrailer : NSObject <CLLocationManagerDelegate> 
 
 @property (strong, nonatomic) CLLocationManager *locManager;
+
+@property (readonly) TLTrailerSequence currentSequence;
+- (NSArray*)updatesUntil:(TLTrailerSequence)seq;
+- (void)removeUpdates:(TLTrailerSequence)seq;
 
 @end

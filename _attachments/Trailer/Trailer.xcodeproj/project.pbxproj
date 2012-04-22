@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3E0084DC1543C6EB005ED28B /* TLTrailer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E0084DB1543C6EB005ED28B /* TLTrailer.m */; };
+		3E0084DE1543D1F7005ED28B /* libsqlite3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E0084DD1543D1F7005ED28B /* libsqlite3.dylib */; };
 		3E9658971537E26D002818DB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E9658961537E26D002818DB /* UIKit.framework */; };
 		3E9658991537E26D002818DB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E9658981537E26D002818DB /* Foundation.framework */; };
 		3E96589B1537E26D002818DB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E96589A1537E26D002818DB /* CoreGraphics.framework */; };
@@ -23,6 +24,7 @@
 /* Begin PBXFileReference section */
 		3E0084DA1543C6EB005ED28B /* TLTrailer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLTrailer.h; sourceTree = "<group>"; };
 		3E0084DB1543C6EB005ED28B /* TLTrailer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TLTrailer.m; sourceTree = "<group>"; };
+		3E0084DD1543D1F7005ED28B /* libsqlite3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsqlite3.dylib; path = usr/lib/libsqlite3.dylib; sourceTree = SDKROOT; };
 		3E9658921537E26D002818DB /* Trailer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trailer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9658961537E26D002818DB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3E9658981537E26D002818DB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -45,6 +47,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E0084DE1543D1F7005ED28B /* libsqlite3.dylib in Frameworks */,
 				3ED81F57153E7F5E0058DA2F /* CoreLocation.framework in Frameworks */,
 				3E9658971537E26D002818DB /* UIKit.framework in Frameworks */,
 				3E9658991537E26D002818DB /* Foundation.framework in Frameworks */,
@@ -76,6 +79,7 @@
 		3E9658951537E26D002818DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3E0084DD1543D1F7005ED28B /* libsqlite3.dylib */,
 				3ED81F56153E7F5E0058DA2F /* CoreLocation.framework */,
 				3E9658B81537EC3C002818DB /* MapKit.framework */,
 				3E9658961537E26D002818DB /* UIKit.framework */,

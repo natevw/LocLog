@@ -7,17 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <CoreLocation/CoreLocation.h>
+#import "TLTrailer.h"
 
 @class TLViewController;
 
-@interface TLAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
+@interface TLAppDelegate : UIResponder <UIApplicationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 
 @property (strong, nonatomic) TLViewController *viewController;
 
-@property (strong, nonatomic) CLLocationManager *locManager;
-
+@property (strong, nonatomic) TLTrailer *logger;
 
 @end

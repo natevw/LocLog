@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E0084DC1543C6EB005ED28B /* TLTrailer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3E0084DB1543C6EB005ED28B /* TLTrailer.m */; };
 		3E9658971537E26D002818DB /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E9658961537E26D002818DB /* UIKit.framework */; };
 		3E9658991537E26D002818DB /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E9658981537E26D002818DB /* Foundation.framework */; };
 		3E96589B1537E26D002818DB /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3E96589A1537E26D002818DB /* CoreGraphics.framework */; };
@@ -20,6 +21,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3E0084DA1543C6EB005ED28B /* TLTrailer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TLTrailer.h; sourceTree = "<group>"; };
+		3E0084DB1543C6EB005ED28B /* TLTrailer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TLTrailer.m; sourceTree = "<group>"; };
 		3E9658921537E26D002818DB /* Trailer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trailer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9658961537E26D002818DB /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3E9658981537E26D002818DB /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -89,6 +92,8 @@
 			children = (
 				3E9658A51537E26D002818DB /* TLAppDelegate.h */,
 				3E9658A61537E26D002818DB /* TLAppDelegate.m */,
+				3E0084DA1543C6EB005ED28B /* TLTrailer.h */,
+				3E0084DB1543C6EB005ED28B /* TLTrailer.m */,
 				3E9658A81537E26D002818DB /* TLViewController.h */,
 				3E9658A91537E26D002818DB /* TLViewController.m */,
 				3E9658AB1537E26D002818DB /* TLViewController.xib */,
@@ -174,6 +179,7 @@
 				3E9658A31537E26D002818DB /* main.m in Sources */,
 				3E9658A71537E26D002818DB /* TLAppDelegate.m in Sources */,
 				3E9658AA1537E26D002818DB /* TLViewController.m in Sources */,
+				3E0084DC1543C6EB005ED28B /* TLTrailer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

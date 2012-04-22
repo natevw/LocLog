@@ -61,7 +61,7 @@
 
 - (CLLocationManager*)locationManager {
     TLAppDelegate *appDelegate = (TLAppDelegate *)[UIApplication sharedApplication].delegate;
-    return appDelegate.locManager;
+    return appDelegate.logger.locManager;
 }
 
 // TODO: these settings need to be persisted, restored and properly applied on app load

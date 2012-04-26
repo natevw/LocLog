@@ -9,15 +9,19 @@
 #import <Foundation/Foundation.h>
 
 #import <CoreLocation/CoreLocation.h>
+#include <sqlite3.h>
 
 typedef NSUInteger TLTrailerSequence;
 
 @interface TLTrailer : NSObject <CLLocationManagerDelegate> 
 
-@property (strong, nonatomic) CLLocationManager *locManager;
+@property (strong, readonly) CLLocationManager *locManager;
+@property (readonly) sqlite3* db;
+@property (readonly) sqlite3_stmt* insertLoc;
+
 
 @property (readonly) TLTrailerSequence currentSequence;
-- (NSArray*)updatesUntil:(TLTrailerSequence)seq;
-- (void)removeUpdates:(TLTrailerSequence)seq;
+- (NSArray*)updatesSince:(TLTrailerSequence)seq;
+- (void)removeUpdatesThrough:(TLTrailerSequence)seq;
 
 @end

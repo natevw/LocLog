@@ -26,6 +26,10 @@
     
     self.logger = [TLTrailer new];
     
+    NSLog(@"Current sequence: %u", self.logger.currentSequence);
+    NSLog(@"%@", [self.logger updatesSince:0]);
+    [self.logger removeUpdatesThrough:self.logger.currentSequence];
+    
     return YES;
 }
 

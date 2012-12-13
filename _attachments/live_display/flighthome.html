@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Flying home</title>
+<style>
+    svg { width:512px; height:512px; display: block; }
+    div { position: relative; top: -268px; left: 244px; color: blue; }
+    img { position: relative; top: -340px; left: 219px; }
+</style>
+<script src="polymaps.min.js"></script>
+<script src="fermata.js"></script>
+<script src="fermata.couchdb.js"></script>
+<svg id=map></svg>
+<div>☆</div>
+<img src="natevw_plane.jpg">
+<table>
+
+<p>Maps courtesy <a href="http://maps.stamen.com">Stamen</a>, data copyright <a href="http://openstreetmap.org/">OpenStreetMap</a>.
+
+<tr><th>Time</th><td id=time><td></tr>
+<tr><th>Speed</th><td id=spd><td></tr>
+<tr><th>Altitude</th><td id=alt><td></tr>
+<tr><th>Climb</th><td id=roc><td></tr>
+</table>
+
+<script>
+    var po = org.polymaps,
+        map = po.map().container(document.getElementById('map')),
+        base = po.image().url(po.url("http://{S}tile.stamen.com/toner/{Z}/{X}/{Y}.png").hosts(["a.", "b.", "c.", "d.", ""])).on('load', function (e) {
+            // https://github.com/simplegeo/polymaps/issues/36
+            e.tile.element.width.baseVal.value += 1;
+            e.tile.element.height.baseVal.value += 1;
+        });
+    map.add(po.wheel().zoom('center'));
+    map.add(base);
+    map.zoom(7);
+    
+    
+    var //db = fermata.couchdb("http://natevw.iriscouch.com")('public'),
+        db = fermata.couchdb()('loctest'),
+        id = 'gogo-test';
+    
+    
+    
+    
+    db.get(function (e,d) {
+        fermata.plugins.couchdb.watchChanges(db({include_docs:true}), d.update_seq, function (r) {
+            var some = r.filter(function (c) { return c.id === id; }),
+                last = some.pop(),
+                posn = last && last.doc.crumbs.pop();           // kinda sucky to reload ever-growing crumbs array all the time, but whatev...
+            if (posn) {
+                update(posn.flightInfo);
+            }
+        });
+    });
+    db(id).get(function (e,d) {
+        if (e) throw e;
+        var posn = d.crumbs.pop();
+        update(posn.flightInfo);
+    });
+    
+    function update(info) {
+        map.center({lat:info.latitude, lon:info.longitude});
+        console.log("INFO", info);
+        
+        var METERS_TO_FEET = 3.2808399;
+        document.getElementById('time').textContent = new Date(info.utcTime).toString().replace(/.*2012 /, '');
+        document.getElementById('spd').textContent = (3600 * info.hSpeed * METERS_TO_FEET / 5280).toFixed() + " mph";
+        document.getElementById('alt').textContent = (info.altitude * METERS_TO_FEET).toFixed(1) + " feet";
+        document.getElementById('roc').textContent = (60 * info.vSpeed * METERS_TO_FEET).toFixed(2) + " ft/min";
+    }
+</script>

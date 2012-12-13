@@ -25,7 +25,7 @@
 <script>
     var po = org.polymaps,
         map = po.map().container(document.getElementById('map')),
-        base = po.image().url(po.url("http://{S}tile.stamen.com/toner/{Z}/{X}/{Y}.png").hosts(["a.", "b.", "c.", "d.", ""])).on('load', function (e) {
+        base = po.image().url(po.url("//{S}tile.stamen.com/toner/{Z}/{X}/{Y}.png").hosts(["a.", "b.", "c.", "d.", ""])).on('load', function (e) {
             // https://github.com/simplegeo/polymaps/issues/36
             e.tile.element.width.baseVal.value += 1;
             e.tile.element.height.baseVal.value += 1;
@@ -35,37 +35,33 @@
     map.zoom(7);
     
     
-    var //db = fermata.couchdb("http://natevw.iriscouch.com")('public'),
-        db = fermata.couchdb()('loctest'),
-        id = 'gogo-test';
-    
-    
-    
+    var db = fermata.couchdb("//natevw.iriscouch.com")('temp');
     
     db.get(function (e,d) {
-        fermata.plugins.couchdb.watchChanges(db({include_docs:true}), d.update_seq, function (r) {
-            var some = r.filter(function (c) { return c.id === id; }),
+        fermata.plugins.couchdb.watchChanges(db({include_docs:true}), d.update_seq - 1, function (r) {
+            var some = r.filter(function (c) { return c.id.indexOf('fly_loc-') === 0; }),
                 last = some.pop(),
-                posn = last && last.doc.crumbs.pop();           // kinda sucky to reload ever-growing crumbs array all the time, but whatev...
+                posn = last && last.doc;
             if (posn) {
-                update(posn.flightInfo);
+                update(posn);
             }
         });
-    });
-    db(id).get(function (e,d) {
-        if (e) throw e;
-        var posn = d.crumbs.pop();
-        update(posn.flightInfo);
     });
     
     function update(info) {
         map.center({lat:info.latitude, lon:info.longitude});
         console.log("INFO", info);
         
+        /*
         var METERS_TO_FEET = 3.2808399;
         document.getElementById('time').textContent = new Date(info.utcTime).toString().replace(/.*2012 /, '');
         document.getElementById('spd').textContent = (3600 * info.hSpeed * METERS_TO_FEET / 5280).toFixed() + " mph";
         document.getElementById('alt').textContent = (info.altitude * METERS_TO_FEET).toFixed(1) + " feet";
         document.getElementById('roc').textContent = (60 * info.vSpeed * METERS_TO_FEET).toFixed(2) + " ft/min";
+        */
+        document.getElementById('time').textContent = new Date(info.fetched).toString().replace(/.*2012 /, '');
+        document.getElementById('spd').textContent = info.gspeed_m;
+        document.getElementById('alt').textContent = info.altitude_f;
+        document.getElementById('roc').textContent = 'n/a';
     }
 </script>

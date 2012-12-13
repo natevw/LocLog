@@ -54,7 +54,7 @@ for k, g in groupby(points, lambda p: p['date'].split('T')[0]):
         logging.info("Updating %s document.", k)
     else:
         id, doc = "geoloqi-%s" %k.replace('-',''), {LOQITYPE:True, 'data':list(g)}
-        logging.info("Storing %s document.", k)
+        logging.info("Storing %s document, %u point(s)", k, len(doc['data']))
     _transport('PUT', DATABASE + "/%s" % id, doc)
     start_doc = None
 

@@ -2,7 +2,7 @@
 
 var f = require('./fermata');
 
-var INTERVAL = 5,
+var INTERVAL = 30,
     DOC_PREFIX = 'fly_loc-';
 
 var crumb = f.json("http://mq.southwestwifi.com/currentInfo"),

@@ -67,16 +67,16 @@
         var po = org.polymaps,
             map = po.map().container(d3.select('#map').append("svg:svg").node());
         map.add(po.interact());
+        
         map.add(po.image()
-            .url(po.url("http://{S}tile.cloudmade.com"
-            + "/51664f123b50414da85e963f92c721f0"
-            + "/998/256/{Z}/{X}/{Y}.png")
+            .url(po.url("http://{S}tile.stamen.com" +
+            "/watercolor" + "/{Z}/{X}/{Y}.jpg")
             .hosts(["a.", "b.", "c.", ""])));
         
         var server = (location.protocol.slice(0,4) == 'file') ? "http://localhost:5984" : '';
         var coordDB = fermata.json(server)('loctest'),
             coordsIndexed = coordDB(["_design/loclog", "_view"]);
-        coordsIndexed('by_utc', {group_level:2}).get(function (e,d) {
+        coordsIndexed('by_utc', {group_level:2, stale:'update_after'}).get(function (e,d) {
             console.log(d.rows.length);
             var coordObjects = [].concat.apply([], d.rows.map(function (r) { return r.value; })),
                 coords = coordObjects.map(function (c) {
